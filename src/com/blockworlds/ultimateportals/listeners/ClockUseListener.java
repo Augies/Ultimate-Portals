@@ -23,7 +23,8 @@ public class ClockUseListener implements Listener {
             Player player = event.getPlayer();
             BlockFace portalFacing = event.getBlockFace().getOppositeFace();
             event.getClickedBlock().getLocation();
-            if(getPortalBlock(portalFacing,event.getClickedBlock())!=null && isValidPortal(portalFacing, event.getClickedBlock())){
+            if(isValidPortal(portalFacing, event.getClickedBlock())){
+                event.getClickedBlock().getLocation();
                 Location location = getPortalBlock(portalFacing, event.getClickedBlock()).getLocation();
                 location.setDirection(portalFacing.getDirection());
                 Portal portal = new Portal(event.getPlayer(), location, event.getClickedBlock().getWorld(), event.getItem().getItemMeta().getDisplayName());

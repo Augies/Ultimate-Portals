@@ -17,12 +17,8 @@ public class PortalHandler {
     }
 
     public static Block getPortalBlock(BlockFace portalFacing, Block clickedBlock){
-        if(isValidPortal(portalFacing, clickedBlock)){
-            BlockFace logicDirection = getLogicDirection(portalFacing);
-            return clickedBlock.getRelative(logicDirection, 1).getRelative(BlockFace.DOWN, 2);
-        }else{
-            return null;
-        }
+        BlockFace logicDirection = getLogicDirection(portalFacing);
+        return clickedBlock.getRelative(logicDirection, 1).getRelative(BlockFace.DOWN, 2);
     }
 
     public static BlockFace getLogicDirection(BlockFace  portalFacing){
