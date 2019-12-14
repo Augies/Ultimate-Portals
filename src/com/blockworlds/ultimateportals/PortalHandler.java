@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 public class PortalHandler {
+
     public static boolean isValidPortal(BlockFace portalFacing, Block clickedBlock){
         if(isValidColumn(clickedBlock)){
             BlockFace logicDirection = getLogicDirection(portalFacing);
@@ -36,6 +37,7 @@ public class PortalHandler {
             case WEST:
                 logicDirection = BlockFace.NORTH;
                 break;
+            //$CASES-OMITTED$
             default:
                 throw new IllegalStateException("Unexpected value: " + portalFacing);
         }
