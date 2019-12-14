@@ -79,6 +79,15 @@ public class Portal {
         }
     }
 
+    /** @return The number of portals that saved successfully */
+    public static int savePortalsToFile() {
+        int numSaved = 0;
+        for(Portal portal : instances) {
+            numSaved += portal.save() ? 1 : 0;
+        }
+        return numSaved;
+    }
+
     /** @param overwriteExisting Whether or not existing portals should be unregistered if a new portal conflicts with it(based on location)
      * @param registerNew Whether or not the new portals should be registered
      * @return A list of brand-new portals that were successfully loaded from file. */
