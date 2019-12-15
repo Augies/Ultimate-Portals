@@ -135,6 +135,8 @@ public class Portal {
     private volatile Location location, destination;//Redundant information: location already contains a reference to the world, no need to store it again here(and locations with a null world generally cause problems anyway)
     private volatile String identifier;
 
+    private transient volatile String destinationLine;//Temporary variable (only used when a portal is loaded in world a while world b is not yet loaded, so the destination is not able to initialize properly yet)
+
     /** @param owner The UUID of the player that created this portal
      * @param location This portal's location
      * @param identifier This portal's identifier */
@@ -180,12 +182,19 @@ public class Portal {
 
     /** @return This portal's destination location */
     public Location getDestination() {
+        if(this.destination == null && this.destinationLine != null) {
+            Location check = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+            if(fromString(check, "destination", this.destinationLine) && check.getWorld() != null && check.getBlockX() != Integer.MIN_VALUE && check.getBlockY() != Integer.MIN_VALUE && check.getBlockZ() != Integer.MIN_VALUE) {
+                this.destination = check;
+                this.destinationLine = null;
+            }
+        }
         return this.destination;
     }
 
     /** @return This portal's destination portal */
     public Portal getDestinationPortal() {
-        return getPortalAt(this.destination);
+        return getPortalAt(this.getDestination());
     }
 
     /** @param destination The destination location to set
@@ -302,6 +311,11 @@ public class Portal {
         StringBuilder sb = new StringBuilder("identifier=".concat(this.identifier == null ? "" : this.identifier).concat("\r\n"));
         sb.append("owner=").append(this.owner.toString()).append("\r\n");
         sb.append("location={").append(this.location.getWorld().getName()).append(",").append(this.location.getBlockX()).append(",").append(this.location.getBlockY()).append(",").append(this.location.getBlockZ()).append("}").append("\r\n");
+        if(this.destination != null) {
+            sb.append("destination={").append(this.destination.getWorld().getName()).append(",").append(this.destination.getBlockX()).append(",").append(this.destination.getBlockY()).append(",").append(this.destination.getBlockZ()).append("}").append("\r\n");
+        } else if(this.destinationLine != null) {
+            sb.append("destination=").append(this.destinationLine).append("\r\n");
+        }
         return sb.toString();
     }
 
@@ -323,6 +337,46 @@ public class Portal {
         return false;
     }
 
+    protected static boolean fromString(Location loc, String param, String value) {
+        if(value.startsWith("{") && value.endsWith("}")) {
+            value = value.substring(1, value.length() - 1);
+            if(value.contains(",") && value.indexOf(",") != value.lastIndexOf(",")) {
+                String[] locData = value.split(Pattern.quote(","));
+                if(locData.length == 4) {
+                    loc.setWorld(Bukkit.getServer().getWorld(locData[0]));
+                    if(isInt(locData[1])) {
+                        loc.setX(Integer.parseInt(locData[1]));
+                    } else {
+                        Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Corrupted X axis data)"));
+                        return false;
+                    }
+                    if(isInt(locData[2])) {
+                        loc.setY(Integer.parseInt(locData[2]));
+                    } else {
+                        Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Corrupted Y axis data)"));
+                        return false;
+                    }
+                    if(isInt(locData[3])) {
+                        loc.setZ(Integer.parseInt(locData[3]));
+                    } else {
+                        Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Corrupted Z axis data)"));
+                        return false;
+                    }
+                } else {
+                    Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Incorrect number of location data parameters. E.g. {world,x,y,z})"));
+                    return false;
+                }
+            } else {
+                Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Missing/corrupted location data)"));
+                return false;
+            }
+        } else {
+            Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"".concat(param).concat("\" with value \"").concat(value).concat("\" (Missing/unbalanced curly brackets)"));
+            return false;
+        }
+        return true;
+    }
+
     /** @param lines The lines read from a portal's save file
      * @return A new unregistered portal if the given lines contained valid portal data */
     public static Portal fromString(String lines) {
@@ -331,6 +385,8 @@ public class Portal {
         String identifier = null;
         UUID owner = null;
         Location location = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+        Location destination = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+        String destinationLine = null;
         for(String line : split) {
             line = line.endsWith("\r") ? line.substring(0, line.length() - 1) : line;
             line = line.contains("#") ? line.substring(0, line.indexOf("#")) : line;
@@ -352,44 +408,24 @@ public class Portal {
                 } else {
                     Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"owner\" with value \"".concat(value).concat("\"..."));
                 }
-            } else if(param.equals("location")) {
-                if(value.startsWith("{") && value.endsWith("}")) {
-                    value = value.substring(1, value.length() - 1);
-                    if(value.contains(",") && value.indexOf(",") != value.lastIndexOf(",")) {
-                        String[] locData = value.split(Pattern.quote(","));
-                        if(locData.length == 4) {
-                            location.setWorld(Bukkit.getServer().getWorld(locData[0]));
-                            if(isInt(locData[1])) {
-                                location.setX(Integer.parseInt(locData[1]));
-                            } else {
-                                Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Corrupted X axis data)"));
-                                continue;
-                            }
-                            if(isInt(locData[2])) {
-                                location.setY(Integer.parseInt(locData[2]));
-                            } else {
-                                Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Corrupted Y axis data)"));
-                                continue;
-                            }
-                            if(isInt(locData[3])) {
-                                location.setZ(Integer.parseInt(locData[3]));
-                            } else {
-                                Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Corrupted Z axis data)"));
-                                continue;
-                            }
-                        } else {
-                            Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Incorrect number of location data parameters. E.g. {world,x,y,z})"));
-                        }
-                    } else {
-                        Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Missing/corrupted location data)"));
-                    }
-                } else {
-                    Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"location\" with value \"".concat(value).concat("\" (Missing/unbalanced curly brackets)"));
+            } else if(param.equals("location") || param.equals("destination")) {
+                Location loc = param.equals("location") ? location : destination;
+                if(param.equals("destination")) {
+                    destinationLine = value;
+                }
+                if(!fromString(loc, param, value) && param.equals("location")) {
+                    break;
                 }
             }
         }
         if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE) {
-            return new Portal(owner, location, identifier);
+            Portal portal = new Portal(owner, location, identifier);
+            if(destination.getWorld() != null && destination.getBlockX() != Integer.MIN_VALUE && destination.getBlockY() != Integer.MIN_VALUE && destination.getBlockZ() != Integer.MIN_VALUE) {
+                portal.setDestination(destination);
+            } else {
+                portal.destinationLine = destinationLine;
+            }
+            return portal;
         }
         return null;
     }
