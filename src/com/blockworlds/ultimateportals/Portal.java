@@ -29,6 +29,7 @@ import org.bukkit.entity.Player;
  * ■ ■ ■
  * ▦ = Emerald Block
  * ■ = Any Other Opaque Block
+ * Nether Portal frame forms within the frame upon portal creation.
  */
 public class Portal {
 
