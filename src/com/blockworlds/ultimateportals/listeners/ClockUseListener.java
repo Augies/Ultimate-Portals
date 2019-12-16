@@ -22,12 +22,14 @@ public class ClockUseListener implements Listener {
         if(event.getItem()!=null && event.getItem().getItemMeta()!= null && !event.getItem().getItemMeta().getDisplayName().equalsIgnoreCase("Clock") && event.getClickedBlock()!=null && event.getItem().getType()==Material.CLOCK && event.getClickedBlock().getType()==Material.EMERALD_BLOCK && isCardinalDirection(event.getBlockFace())){
             Player player = event.getPlayer();
             BlockFace portalFacing = event.getBlockFace().getOppositeFace();
-            event.getClickedBlock().getLocation();
             if(isValidPortal(portalFacing, event.getClickedBlock())){
-                event.getClickedBlock().getLocation();
                 Location location = getPortalBlock(portalFacing, event.getClickedBlock()).getLocation();
-                location.setDirection(portalFacing.getDirection());
-                Portal portal = new Portal(event.getPlayer(), location, event.getClickedBlock().getWorld(), event.getItem().getItemMeta().getDisplayName());
+                if(!hasPortal(location)) {
+                    location.setDirection(portalFacing.getDirection());
+                    Portal portal = new Portal(event.getPlayer(), location, event.getClickedBlock().getWorld(), event.getItem().getItemMeta().getDisplayName());
+                    getPortalBlock(portalFacing, event.getClickedBlock()).getRelative(BlockFace.UP).setType(Material.WATER);
+                    getPortalBlock(portalFacing, event.getClickedBlock()).getRelative(BlockFace.UP, 2).setType(Material.WATER);
+                }
             }
         }
     }
