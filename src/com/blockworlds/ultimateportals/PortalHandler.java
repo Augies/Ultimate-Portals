@@ -29,6 +29,7 @@ public class PortalHandler {
         //TODO
     }
 
+
     public static boolean isValidPortal(BlockFace portalFacing, Block clickedBlock){
         if(isValidColumn(clickedBlock)){
             BlockFace logicDirection = getLogicDirection(portalFacing);
@@ -60,6 +61,7 @@ public class PortalHandler {
             case WEST:
                 logicDirection = BlockFace.NORTH;
                 break;
+            //$CASES-OMITTED$
             default:
                 throw new IllegalStateException("Unexpected value: " + portalFacing);
         }
@@ -78,4 +80,5 @@ public class PortalHandler {
     public static boolean isCardinalDirection(BlockFace blockFace){
         return (blockFace == BlockFace.NORTH || blockFace == BlockFace.SOUTH || blockFace == BlockFace.EAST || blockFace == BlockFace.WEST);
     }
+
 }

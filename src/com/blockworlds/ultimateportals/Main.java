@@ -1,20 +1,35 @@
 package com.blockworlds.ultimateportals;
 
 import com.blockworlds.ultimateportals.listeners.ClockUseListener;
-import org.bukkit.Bukkit;
+import com.blockworlds.ultimateportals.listeners.WorldLoadListener;
+
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
     private static volatile ClockUseListener clockUseListener = null;
+    private static volatile WorldLoadListener worldLoadListener = null;
+
+    private static Main plugin;
+
+    public static Main getPlugin() {
+        return plugin;
+    }
 
     public void onEnable(){
-        clockUseListener = new ClockUseListener();
-        this.getServer().getPluginManager().registerEvents(clockUseListener, this);
+        plugin = this;
+        this.getServer().getPluginManager().registerEvents(clockUseListener = new ClockUseListener(), this);
+        this.getServer().getPluginManager().registerEvents(worldLoadListener = new WorldLoadListener(), this);
+        int numLoaded = Portal.loadPortalsFromFile(true, true).size();
+        this.getLogger().info("Loaded ".concat(Integer.toString(numLoaded)).concat(" portal").concat(numLoaded == 1 ? "" : "s").concat(" from file successfully."));
     }
 
     public void onDisable(){
-        HandlerList.unregisterAll(clockUseListener);
+        int numSaved = Portal.savePortalsToFile();
+        this.getLogger().info("Saved ".concat(Integer.toString(numSaved)).concat(" portal").concat(numSaved == 1 ? "" : "s").concat(" to file successfully."));
+        HandlerList.unregisterAll(this);//unregisters all listeners for the specified plugin
         clockUseListener = null;
+        worldLoadListener = null;
     }
+    
 }
