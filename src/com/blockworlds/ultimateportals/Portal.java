@@ -19,7 +19,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+
+import static com.blockworlds.ultimateportals.PortalHandler.getLogicDirection;
+import static net.minecraft.server.v1_14_R1.BlockProperties.as;
 
 /**
  * Portals Shaped like this:
@@ -135,16 +140,18 @@ public class Portal {
     private volatile UUID owner;//Don't store instances of Player, as the server needs to be able to remove them and re-add when necessary, and storing a stale copy can cause problems.
     private volatile Location location, destination;//Redundant information: location already contains a reference to the world, no need to store it again here(and locations with a null world generally cause problems anyway)
     private volatile String identifier;
+    private volatile BlockFace portalFacing; //For my sanity, as location.getDirection() cannot be cast to a blockface
 
     private transient volatile String destinationLine;//Temporary variable (only used when a portal is loaded in world a while world b is not yet loaded, so the destination is not able to initialize properly yet)
 
     /** @param owner The UUID of the player that created this portal
      * @param location This portal's location
      * @param identifier This portal's identifier */
-    public Portal(UUID owner, Location location, String identifier){
+    public Portal(UUID owner, Location location, String identifier, BlockFace portalFacing){
         this.owner = owner;
         this.location = location;
         this.identifier = identifier;
+        this.portalFacing = portalFacing;
     }
 
     protected boolean copyFrom(Portal portal) {
@@ -152,6 +159,7 @@ public class Portal {
             this.owner = portal.owner;
             this.location = portal.location;
             this.identifier = portal.identifier;
+            this.portalFacing = portal.portalFacing;
             return true;
         }
         return false;
@@ -277,6 +285,13 @@ public class Portal {
         return this.identifier;
     }
 
+    /**
+     * @return the direction the portal faces
+     */
+    public BlockFace getPortalFacing(){
+        return this.portalFacing;
+    }
+
     /** @param identifier The new identifier for this portal 
      * @return This portal */
     public Portal setIdentifier(String identifier){
@@ -380,7 +395,7 @@ public class Portal {
 
     /** @param lines The lines read from a portal's save file
      * @return A new unregistered portal if the given lines contained valid portal data */
-    public static Portal fromString(String lines) {
+    public static Portal fromString(String lines) {//TODO read over implementation of portalFacing in this method pls Brian
         String[] split = lines.split(Pattern.quote("\n"));
         
         String identifier = null;
@@ -388,6 +403,7 @@ public class Portal {
         Location location = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
         Location destination = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
         String destinationLine = null;
+        BlockFace portalFacing = null;
         for(String line : split) {
             line = line.endsWith("\r") ? line.substring(0, line.length() - 1) : line;
             line = line.contains("#") ? line.substring(0, line.indexOf("#")) : line;
@@ -417,10 +433,12 @@ public class Portal {
                 if(!fromString(loc, param, value) && param.equals("location")) {
                     break;
                 }
+            } else if(param.equals("portalFacing")){
+                portalFacing = BlockFace.valueOf(value);
             }
         }
-        if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE) {
-            Portal portal = new Portal(owner, location, identifier);
+        if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE && portalFacing != null) {
+            Portal portal = new Portal(owner, location, identifier, portalFacing);
             if(destination.getWorld() != null && destination.getBlockX() != Integer.MIN_VALUE && destination.getBlockY() != Integer.MIN_VALUE && destination.getBlockZ() != Integer.MIN_VALUE) {
                 portal.setDestination(destination);
             } else {
@@ -431,4 +449,42 @@ public class Portal {
         return null;
     }
 
+    /**
+     * 0 = portal's identifying block 1-3 = other blocks in that column from bottom to top
+     * 4-7 = left column from bottom to top
+     * 8-11 = right column from bottom to top
+     * Gets the portal's blocks
+     * @return both water blocks of a portal
+     */
+    public Block[] getPortalBlocks(){
+        //TODO better looking code? Not manually setting each portion of array. lol.
+        Block[] blocks = new Block[12];
+        BlockFace logicDirection = getLogicDirection(portalFacing);
+        blocks[0] = location.getBlock();
+        blocks[1] = location.getBlock().getRelative(BlockFace.UP);
+        blocks[2] = blocks[1].getRelative(BlockFace.UP);
+        blocks[3] = blocks[2].getRelative(BlockFace.UP);
+        blocks[4] = blocks[0].getRelative(logicDirection.getOppositeFace());
+        blocks[5] = blocks[4].getRelative(BlockFace.UP);
+        blocks[6] = blocks[5].getRelative(BlockFace.UP);
+        blocks[7] = blocks[6].getRelative(BlockFace.UP);
+        blocks[8] = blocks[0].getRelative(logicDirection);
+        blocks[9] = blocks[8].getRelative(BlockFace.UP);
+        blocks[10] = blocks[9].getRelative(BlockFace.UP);
+        blocks[11] = blocks[10].getRelative(BlockFace.UP);
+        return blocks;
+    }
+
+    public static Portal getPortalWithin(Location location){
+        List<Portal> portals = getPortalsWithin(location.getWorld());
+        for(Portal i : portals){
+            Block[] blocks = i.getPortalBlocks();
+            for(Block j : blocks){
+                if(j.getLocation() == location){
+                    return i;
+                }
+            }
+        }
+        return null;
+    }
 }

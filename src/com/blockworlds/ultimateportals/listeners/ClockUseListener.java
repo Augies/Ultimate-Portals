@@ -31,7 +31,7 @@ public class ClockUseListener implements Listener {
             if(isValidPortal(portalFacing, clickedBlock)){
                 Location location = getPortalBlock(portalFacing, clickedBlock).getLocation();
                 location.setDirection(portalFacing.getDirection());
-                Portal portal = new Portal(player.getUniqueId(), location, event.getItem().getItemMeta().getDisplayName());
+                Portal portal = new Portal(player.getUniqueId(), location, event.getItem().getItemMeta().getDisplayName(), portalFacing);
                 if(!portal.register()) {
                     player.sendMessage("\u00A7cA portal already exists at this location.");
                     return;
