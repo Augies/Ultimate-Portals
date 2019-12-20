@@ -24,7 +24,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 
 import static com.blockworlds.ultimateportals.PortalHandler.getLogicDirection;
-import static net.minecraft.server.v1_14_R1.BlockProperties.as;
 
 /**
  * Portals Shaped like this:
@@ -404,6 +403,7 @@ public class Portal {
         Location destination = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
         String destinationLine = null;
         BlockFace portalFacing = null;
+        label:
         for(String line : split) {
             line = line.endsWith("\r") ? line.substring(0, line.length() - 1) : line;
             line = line.contains("#") ? line.substring(0, line.indexOf("#")) : line;
@@ -416,25 +416,31 @@ public class Portal {
             for(int i = 1; i < params.length; i++) {
                 value = value.concat(params[i]).concat(i + 1 == params.length ? "" : "=");
             }
-            
-            if(param.equals("identifier")) {
-                identifier = value;
-            } else if(param.equals("owner")) {
-                if(isUUID(value)) {
-                    owner = UUID.fromString(value);
-                } else {
-                    Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"owner\" with value \"".concat(value).concat("\"..."));
-                }
-            } else if(param.equals("location") || param.equals("destination")) {
-                Location loc = param.equals("location") ? location : destination;
-                if(param.equals("destination")) {
-                    destinationLine = value;
-                }
-                if(!fromString(loc, param, value) && param.equals("location")) {
+
+            switch (param) {
+                case "identifier":
+                    identifier = value;
                     break;
-                }
-            } else if(param.equals("portalFacing")){
-                portalFacing = BlockFace.valueOf(value);
+                case "owner":
+                    if (isUUID(value)) {
+                        owner = UUID.fromString(value);
+                    } else {
+                        Main.getPlugin().getLogger().warning("Ignoring malformed portal parameter \"owner\" with value \"".concat(value).concat("\"..."));
+                    }
+                    break;
+                case "location":
+                case "destination":
+                    Location loc = param.equals("location") ? location : destination;
+                    if (param.equals("destination")) {
+                        destinationLine = value;
+                    }
+                    if (!fromString(loc, param, value) && param.equals("location")) {
+                        break label;
+                    }
+                    break;
+                case "portalFacing":
+                    portalFacing = BlockFace.valueOf(value);
+                    break;
             }
         }
         if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE && portalFacing != null) {
