@@ -2,12 +2,16 @@ package com.blockworlds.ultimateportals.listeners;
 
 import com.blockworlds.ultimateportals.Portal;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.util.UUID;
 
-public class PortalBreakListener {
+public class PortalBreakListener implements Listener{
 
+    @EventHandler(priority = EventPriority.NORMAL)
     public void onPortalBreak(BlockBreakEvent event) {
         //TODO break the portal if owned by that UUID, otherwise cancel event
         UUID uuid = event.getPlayer().getUniqueId();

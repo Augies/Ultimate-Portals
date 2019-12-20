@@ -1,6 +1,7 @@
 package com.blockworlds.ultimateportals;
 
 import com.blockworlds.ultimateportals.listeners.ClockUseListener;
+import com.blockworlds.ultimateportals.listeners.PortalBreakListener;
 import com.blockworlds.ultimateportals.listeners.WorldLoadListener;
 
 import org.bukkit.event.HandlerList;
@@ -9,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin {
     private static volatile ClockUseListener clockUseListener = null;
     private static volatile WorldLoadListener worldLoadListener = null;
+    private static volatile PortalBreakListener portalBreakListener = null;
 
     private static Main plugin;
 
@@ -20,6 +22,7 @@ public class Main extends JavaPlugin {
         plugin = this;
         this.getServer().getPluginManager().registerEvents(clockUseListener = new ClockUseListener(), this);
         this.getServer().getPluginManager().registerEvents(worldLoadListener = new WorldLoadListener(), this);
+        this.getServer().getPluginManager().registerEvents(portalBreakListener = new PortalBreakListener(), this);
         int numLoaded = Portal.loadPortalsFromFile(true, true).size();
         this.getLogger().info("Loaded ".concat(Integer.toString(numLoaded)).concat(" portal").concat(numLoaded == 1 ? "" : "s").concat(" from file successfully."));
     }
@@ -30,6 +33,7 @@ public class Main extends JavaPlugin {
         HandlerList.unregisterAll(this);//unregisters all listeners for the specified plugin
         clockUseListener = null;
         worldLoadListener = null;
+        portalBreakListener = null;
     }
     
 }
