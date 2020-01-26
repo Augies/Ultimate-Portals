@@ -1,10 +1,12 @@
 package com.blockworlds.ultimateportals.listeners;
 
 import com.blockworlds.ultimateportals.Portal;
+import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Orientable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,16 +33,36 @@ public class ClockUseListener implements Listener {
             if(isValidPortal(portalFacing, clickedBlock)){
                 Location location = getPortalBlock(portalFacing, clickedBlock).getLocation();
                 location.setDirection(portalFacing.getDirection());
-                Portal portal = new Portal(player.getUniqueId(), location, event.getItem().getItemMeta().getDisplayName(), portalFacing);
+                String name = event.getItem().getItemMeta().getDisplayName();
+                int instanceNum = Portal.identifierInstances.getOrDefault(name, 0)+1;
+                Portal portal = new Portal(player.getUniqueId(), location, name, portalFacing, instanceNum);
                 if(!portal.register()) {
                     player.sendMessage("\u00A7cA portal already exists at this location.");
+                    portal.unregister();
                     return;
                 }
-                clickedBlock.getRelative(getLogicDirection(portalFacing)).setType(Material.NETHER_PORTAL);
-                clickedBlock.getRelative(getLogicDirection(portalFacing)).getRelative(BlockFace.DOWN).setType(Material.NETHER_PORTAL);
+                Block[] portalBlocks = new Block[2];
+                portalBlocks[0]= clickedBlock.getRelative(getLogicDirection(portalFacing));
+                portalBlocks[1]= clickedBlock.getRelative(getLogicDirection(portalFacing)).getRelative(BlockFace.DOWN);
+                portalBlocks[0].setType(Material.NETHER_PORTAL);
+                portalBlocks[1].setType(Material.NETHER_PORTAL);
+
+                //Fixes Portal Orientation
+                Orientable[] orientable = new Orientable[2];
+                orientable[0] = (Orientable)portalBlocks[0].getBlockData();
+                orientable[1] = (Orientable)portalBlocks[1].getBlockData();
+                if(portalFacing==BlockFace.NORTH || portalFacing==BlockFace.SOUTH){
+                    orientable[0].setAxis(Axis.X);
+                    orientable[1].setAxis(Axis.X);
+                }else{
+                    orientable[0].setAxis(Axis.Z);
+                    orientable[1].setAxis(Axis.Z);
+                }
+                portalBlocks[0].setBlockData(orientable[0]);
+                portalBlocks[1].setBlockData(orientable[1]);
                 player.sendMessage("\u00A7aSuccessfully created a portal named \"".concat(portal.getIdentifier()).concat("\u00A7r\u00A7a\" at the selected location."));
                 //TODO maybe tell the player that they can now link this portal with another one somehow?
-                //if(portal.linkDestinationPortalBasedOnIdentifier(true/false)) {player.sendMessage("\u00A7aFound and set a matching portal for this portal!");}
+//                if(portal.linkDestinationPortalBasedOnIdentifier(true/false)) {player.sendMessage("\u00A7aFound and set a matching portal for this portal!");}
             }
         }
     }

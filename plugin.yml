@@ -1,6 +1,6 @@
 name: UltimatePortals
 main: com.blockworlds.ultimateportals.Main
 version: 1.0-SNAPSHOT
-author: Augies
-authors: [Brian_Entei]
+authors: [Brian_Entei, Augies]
 api-version: 1.14
+load: POSTWORLD

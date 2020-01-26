@@ -23,6 +23,7 @@ public class PortalBreakListener implements Listener{
             } else {
                 portal.getPortalBlocks()[1].setType(Material.AIR);
                 portal.getPortalBlocks()[2].setType(Material.AIR);
+                portal.unregister();
                 event.getPlayer().sendMessage("Broke the portal!");
             }
         }
