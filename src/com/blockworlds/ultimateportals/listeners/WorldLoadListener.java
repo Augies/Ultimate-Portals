@@ -41,7 +41,7 @@ public class WorldLoadListener implements Listener {
 		int numUnregistered = 0;
 		for(Portal portal : Portal.getPortalsWithin(world)) {
 			if(portal.save()) {
-				numUnregistered += portal.unregister() ? 1 : 0;
+				numUnregistered += portal.unregister(false) ? 1 : 0;
 			} else {
 				Main.getPlugin().getLogger().warning("Failed to save portal \"".concat(portal.getIdentifier()).concat("\" at \"").concat(portal.getLocation().toVector().toString()).concat("\"! The world that it was in (\"").concat(world.getName()).concat("\") has unloaded, so this portal's data may be lost!"));
 			}

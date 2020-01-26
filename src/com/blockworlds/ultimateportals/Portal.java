@@ -8,10 +8,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -38,7 +35,7 @@ import static com.blockworlds.ultimateportals.PortalHandler.getLogicDirection;
  */
 public class Portal {
     //TODO File read/write move to PortalHandler
-    public static final HashMap<String, Integer> identifierInstances = new HashMap<>();
+    //public static final HashMap<String, Integer> identifierInstances = new HashMap<>();
 
     public static final ConcurrentLinkedDeque<Portal> instances = new ConcurrentLinkedDeque<>();
 
@@ -114,7 +111,7 @@ public class Portal {
                         if(overwriteExisting) {
                             Portal existing = getPortalAt(portal.location);
                             if(existing != null) {
-                                existing.unregister();
+                                existing.unregister(true);
                             }
                         }
                         if(registerNew) {
@@ -143,7 +140,7 @@ public class Portal {
     private volatile Location location, destination;//Redundant information: location already contains a reference to the world, no need to store it again here(and locations with a null world generally cause problems anyway)
     private volatile String identifier;
     private volatile BlockFace portalFacing; //For my sanity, as location.getDirection() cannot be cast to a blockface
-    private volatile int instanceNum; //the instance number of the portal. If it's the second portal created with the same identifier, it'd be instance 2
+    private  int instanceNum; //the instance number of the portal. If it's the second portal created with the same identifier, it'd be instance 2
 
     private transient volatile String destinationLine;//Temporary variable (only used when a portal is loaded in world a while world b is not yet loaded, so the destination is not able to initialize properly yet)
 
@@ -152,19 +149,10 @@ public class Portal {
      * @param identifier This portal's identifier */
     public Portal(UUID owner, Location location, String identifier, BlockFace portalFacing, int instanceNum){
         System.out.println(identifier + "_" + instanceNum + " initialized");
-            Portal.identifierInstances.put(identifier, 1);
-            setDestinationPortal(getPortal(identifier,2));
-            Portal.identifierInstances.remove(identifier);
-            identifierInstances.put(identifier, instanceNum);
-            setDestinationPortal(getPortal(identifier, 1));
-            Portal p = getPortal(identifier, instanceNum-1);
-            if(p!=null){
-                System.out.println(identifier + "_" + instanceNum + " isn't null");
-//                p.setDestinationPortal(this);
-                p.setDestination(location);
-            }else{
-                Main.getPlugin().getLogger().log(Level.WARNING, "Failed to set destination portal for " + identifier + "_" + (instanceNum-1));
-            }
+//            Portal.identifierInstances.put(identifier, 1);
+//            Portal.identifierInstances.remove(identifier);
+//            identifierInstances.put(identifier, instanceNum);
+//            setDestinationPortal(getPortal(identifier, 1));
         this.owner = owner;
         this.location = location;
         this.identifier = identifier;
@@ -194,17 +182,19 @@ public class Portal {
     }
 
     /** @return True if this portal was just unregistered. Will return false if this portal was already unregistered. */
-    public boolean unregister() {
+    public boolean unregister(boolean fixInstanceNums) {
         String identifier = this.identifier;
         if(instances.contains(this)) {
             while(instances.remove(this)) {
-                int instances = identifierInstances.get(identifier);
-                identifierInstances.remove(identifier);
-                identifierInstances.put(identifier, instances-1);
-                if(instanceNum==2){
-                    getPortal(identifier, 1).setDestination(null);
-                }else{
-                    getPortal(identifier, instanceNum-1).setDestinationPortal(getPortal(identifier, 1));
+//                int instances = identifierInstances.get(identifier);
+//                identifierInstances.remove(identifier);
+//                identifierInstances.put(identifier, instances-1);
+                if(fixInstanceNums) {
+                    for (Portal i : instances) {
+                        if (i.getInstanceNum() > this.getInstanceNum()) {
+                            i.instanceNum--;
+                        }
+                    }
                 }
             }
             return true;
@@ -219,14 +209,16 @@ public class Portal {
 
     /** @return This portal's destination location */
     public Location getDestination() {
-        if(this.destination == null && this.destinationLine != null) {
-            Location check = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
-            if(fromString(check, "destination", this.destinationLine) && check.getWorld() != null && check.getBlockX() != Integer.MIN_VALUE && check.getBlockY() != Integer.MIN_VALUE && check.getBlockZ() != Integer.MIN_VALUE) {
-                this.destination = check;
-                this.destinationLine = null;
-            }
-        }
-        return this.destination;
+        System.out.println(this.instanceNum + ": " + (((this.instanceNum) % getNumberOf(this.identifier)) + 1) + " for " + getNumberOf(this.identifier) + " instances");
+        return Portal.getPortal(this.identifier, ((this.instanceNum) % getNumberOf(this.identifier))).getLocation() == null ? null : Portal.getPortal(this.identifier, ((this.instanceNum) % getNumberOf(this.identifier))).getLocation();
+//        if(this.destination == null && this.destinationLine != null) {
+//            Location check = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+//            if(fromString(check, "destination", this.destinationLine) && check.getWorld() != null && check.getBlockX() != Integer.MIN_VALUE && check.getBlockY() != Integer.MIN_VALUE && check.getBlockZ() != Integer.MIN_VALUE) {
+//                this.destination = check;
+//                this.destinationLine = null;
+//            }
+//        }
+//        return this.destination;
     }
 
     /** @return This portal's destination portal */
@@ -243,7 +235,7 @@ public class Portal {
     /** @param destination The destination location to set
      * @return This portal */
     public void setDestinationPortal(Portal destination) {
-        this.destination = destination == null ? null : destination.location;
+        this.destination = destination.getLocation() == null ? null : destination.location;
     }
 
     /** @param linkDestinationToThis Whether or not the matching destination portal should have its destination set to be this portal
@@ -277,9 +269,9 @@ public class Portal {
 
     /** @return This portal's save file */
     public File getSaveFile() {
-        int instances = identifierInstances.getOrDefault(this.identifier, 0)+1;
-        identifierInstances.remove(this.identifier);
-        identifierInstances.put(this.identifier, instances);
+//        int instances = identifierInstances.getOrDefault(this.identifier, 0)+1;
+//        identifierInstances.remove(this.identifier);
+//        identifierInstances.put(this.identifier, instances);
         return new File(getSaveFolder(), this.identifier.concat("_").concat(String.valueOf(this.instanceNum)));
     }
 
