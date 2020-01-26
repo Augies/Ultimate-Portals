@@ -17,7 +17,7 @@ public class PortalBreakListener implements Listener{
         UUID uuid = event.getPlayer().getUniqueId();
         Portal portal = Portal.getPortalWithin(event.getBlock().getLocation());
         if (portal != null) {
-            if (portal.getOwner() != uuid) {
+            if (!portal.getOwner().toString().equals(uuid.toString())) {
                 event.getPlayer().sendMessage("Bruh. Don't be trying to break a portal that isn't yours.");
                 event.setCancelled(true);
             } else {

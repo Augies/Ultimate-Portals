@@ -152,10 +152,8 @@ public class Portal {
      * @param identifier This portal's identifier */
     public Portal(UUID owner, Location location, String identifier, BlockFace portalFacing, int instanceNum){
         System.out.println(identifier + "_" + instanceNum + " initialized");
-        if(instanceNum==1){
             Portal.identifierInstances.put(identifier, 1);
-            setDestinationPortal(getPortal(identifier,-1));
-        }else{
+            setDestinationPortal(getPortal(identifier,2));
             Portal.identifierInstances.remove(identifier);
             identifierInstances.put(identifier, instanceNum);
             setDestinationPortal(getPortal(identifier, 1));
@@ -167,7 +165,6 @@ public class Portal {
             }else{
                 Main.getPlugin().getLogger().log(Level.WARNING, "Failed to set destination portal for " + identifier + "_" + (instanceNum-1));
             }
-        }
         this.owner = owner;
         this.location = location;
         this.identifier = identifier;
@@ -538,7 +535,8 @@ public class Portal {
         for(Portal i : portals){
             Block[] blocks = i.getPortalBlocks();
             for(Block j : blocks){
-                if(j.getLocation() == location){
+                Location jloc = j.getLocation();
+                if(jloc.getBlockX() == location.getBlockX() && location.getBlockY()==jloc.getBlockY() && location.getBlockZ() == jloc.getBlockZ()){
                     return i;
                 }
             }
