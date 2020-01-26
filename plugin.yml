@@ -4,3 +4,8 @@ version: 1.0-SNAPSHOT
 authors: [Brian_Entei, Augies]
 api-version: 1.14
 load: POSTWORLD
+commands:
+  ultimateportals:
+    description: The Base Ultimate Portals Command
+    usage: /<command>
+    aliases: [ultport, up]
