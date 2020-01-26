@@ -209,8 +209,10 @@ public class Portal {
 
     /** @return This portal's destination location */
     public Location getDestination() {
-        System.out.println(this.instanceNum + ": " + (((this.instanceNum) % getNumberOf(this.identifier)) + 1) + " for " + getNumberOf(this.identifier) + " instances");
-        return Portal.getPortal(this.identifier, ((this.instanceNum) % getNumberOf(this.identifier))).getLocation() == null ? null : Portal.getPortal(this.identifier, ((this.instanceNum) % getNumberOf(this.identifier))).getLocation();
+        if(instanceNum==1){
+            return getPortal(identifier, 2)==null ? null : getPortal(identifier, 2).getLocation();
+        }
+        return getPortal(identifier, instanceNum+1)==null ? getPortal(identifier, 1).getLocation() : getPortal(identifier, instanceNum+1).getLocation();
 //        if(this.destination == null && this.destinationLine != null) {
 //            Location check = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
 //            if(fromString(check, "destination", this.destinationLine) && check.getWorld() != null && check.getBlockX() != Integer.MIN_VALUE && check.getBlockY() != Integer.MIN_VALUE && check.getBlockZ() != Integer.MIN_VALUE) {
@@ -480,11 +482,11 @@ public class Portal {
                     portalFacing = BlockFace.valueOf(value);
                     break;
                 case "instanceNum":
-                    instanceNum = Integer.getInteger(value)==null ? 1 : Integer.parseInt(value);
+                    instanceNum = Integer.parseInt(value);
                     break;
             }
         }
-        if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE && portalFacing != null) {
+        if(identifier != null && owner != null && location.getWorld() != null && location.getBlockX() != Integer.MIN_VALUE && location.getBlockY() != Integer.MIN_VALUE && location.getBlockZ() != Integer.MIN_VALUE && portalFacing != null && instanceNum!=null) {
             Portal portal = new Portal(owner, location, identifier, portalFacing, instanceNum);
             if(destination.getWorld() != null && destination.getBlockX() != Integer.MIN_VALUE && destination.getBlockY() != Integer.MIN_VALUE && destination.getBlockZ() != Integer.MIN_VALUE) {
                 portal.setDestination(destination);

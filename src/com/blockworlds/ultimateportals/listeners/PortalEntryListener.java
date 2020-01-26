@@ -25,7 +25,7 @@ public class PortalEntryListener implements Listener {
             if(portal!=null && portal.getDestination()!=null){
                 event.setCancelled(true);
                 Location destination = portal.getDestinationPortal().getLocation();
-                Block destinationBlock = destination.getWorld().getBlockAt(destination).getRelative(portal.getDestinationPortal().getPortalFacing().getOppositeFace());
+                Block destinationBlock = destination.getWorld().getBlockAt(destination).getRelative(portal.getDestinationPortal().getPortalFacing().getOppositeFace(), 2);
                 player.teleport(destinationBlock.getRelative(BlockFace.UP).getLocation());
             }
             event.setCancelled(true);
