@@ -62,7 +62,6 @@ public class ClockUseListener implements Listener {
                 portalBlocks[1].setBlockData(orientable[1]);
                 player.sendMessage("\u00A7aSuccessfully created a portal named \"".concat(portal.getIdentifier()).concat("\u00A7r\u00A7a\" at the selected location."));
                 //TODO maybe tell the player that they can now link this portal with another one somehow?
-//                if(portal.linkDestinationPortalBasedOnIdentifier(true/false)) {player.sendMessage("\u00A7aFound and set a matching portal for this portal!");}
             }
         }
     }

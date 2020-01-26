@@ -19,6 +19,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
 import org.bukkit.entity.Player;
 
 import static com.blockworlds.ultimateportals.PortalHandler.getLogicDirection;
@@ -65,7 +66,9 @@ public class Portal {
     /** @return The folder in which all portals are saved to and loaded from */
     public static File getSaveFolder() {
         File folder = new File(Main.getPlugin().getDataFolder(), "PortalData");
-        folder.mkdirs();
+        if(!folder.mkdirs()){
+            Main.getPlugin().getLogger().warning("Error creating save folder");
+        }
         return folder;
     }
 
@@ -86,6 +89,11 @@ public class Portal {
 
     /** @return The number of portals that saved successfully */
     public static int savePortalsToFile() {
+        try {
+            FileUtils.cleanDirectory(getSaveFolder());
+        }catch(IOException e){
+            Main.getPlugin().getLogger().log(Level.WARNING, "Failed to delete old portals from file when saving new ones!", e);
+        }
         int numSaved = 0;
         for(Portal portal : instances) {
             numSaved += portal.save() ? 1 : 0;
@@ -149,10 +157,6 @@ public class Portal {
      * @param identifier This portal's identifier */
     public Portal(UUID owner, Location location, String identifier, BlockFace portalFacing, int instanceNum){
         System.out.println(identifier + "_" + instanceNum + " initialized");
-//            Portal.identifierInstances.put(identifier, 1);
-//            Portal.identifierInstances.remove(identifier);
-//            identifierInstances.put(identifier, instanceNum);
-//            setDestinationPortal(getPortal(identifier, 1));
         this.owner = owner;
         this.location = location;
         this.identifier = identifier;
@@ -183,15 +187,11 @@ public class Portal {
 
     /** @return True if this portal was just unregistered. Will return false if this portal was already unregistered. */
     public boolean unregister(boolean fixInstanceNums) {
-        String identifier = this.identifier;
         if(instances.contains(this)) {
             while(instances.remove(this)) {
-//                int instances = identifierInstances.get(identifier);
-//                identifierInstances.remove(identifier);
-//                identifierInstances.put(identifier, instances-1);
                 if(fixInstanceNums) {
                     for (Portal i : instances) {
-                        if (i.getInstanceNum() > this.getInstanceNum()) {
+                        if (i.getInstanceNum() > this.getInstanceNum() && i.identifier.equals(this.identifier)) {
                             i.instanceNum--;
                         }
                     }
@@ -375,9 +375,10 @@ public class Portal {
 
     private static boolean isUUID(String str) {
         try {
-            UUID.fromString(str);
+            UUID dude = UUID.fromString(str);
             return true;
         } catch(IllegalArgumentException ex) {
+            Main.getPlugin().getLogger().log(Level.WARNING, "Invalid UUID caught " + str, ex);
         }
         return false;
     }
@@ -387,6 +388,7 @@ public class Portal {
             Integer.parseInt(str);
             return true;
         } catch(NumberFormatException ex) {
+            Main.getPlugin().getLogger().log(Level.WARNING, "String is not an integer!" + str, ex);
         }
         return false;
     }
