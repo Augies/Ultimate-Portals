@@ -16,7 +16,7 @@ public abstract class UPCommand {
         this.requiredPermission = requiredPermission;
     }
 
-    public boolean tryCommand(CommandSender sender, String label, String[] args){
+    public boolean tryCommand(){
         if(requiredPermission == null){
             executeCommand();
             return true;
