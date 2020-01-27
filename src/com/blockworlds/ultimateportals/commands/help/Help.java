@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -49,7 +50,6 @@ public class Help extends UPCommand {
         Set<PermissionAttachmentInfo> pais = player.getEffectivePermissions();
         ArrayList<String> perms = new ArrayList<>();
         for(PermissionAttachmentInfo pai : pais){
-            System.out.println(pai.getPermission());
             if(pai.getPermission().toLowerCase().startsWith("ultimateportals.")){
                 perms.add(pai.getPermission());
             }
@@ -64,7 +64,9 @@ public class Help extends UPCommand {
             return;
         }
         sender.sendMessage("\u00A76----Ultimate Portals Help (" + pageNum + "/" + maxPageNum + ")----");
-        for(String i : displayedCommands){
+        String[] displayed = displayedCommands.toArray(new String[0]);
+        displayed = Arrays.copyOfRange(displayed,5*(pageNum-1),5*(pageNum-1)+4);
+        for(String i : displayed){
             sender.sendMessage(getDescription(i));
         }
     }
@@ -87,11 +89,9 @@ public class Help extends UPCommand {
     public ArrayList<String> getDisplayedCommands(){
         Map<String,String> upCommands = MasterCommand.getUpCommands();
         ArrayList<String> displayedCommands = new ArrayList<>();
-        for(String perm : playerPermissions){
-            for(Entry<String,String> command : upCommands.entrySet()){
-                if(command.getValue()==null || command.getValue().equalsIgnoreCase(perm)){
-                    displayedCommands.add(command.getKey());
-                }
+        for(Entry<String,String> command : upCommands.entrySet()){
+            if(command.getValue()==null || playerPermissions.contains(command.getValue())){
+                displayedCommands.add(command.getKey());
             }
         }
         return displayedCommands;
