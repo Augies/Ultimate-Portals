@@ -25,11 +25,10 @@ public class Delete extends UPCommand {
             sender.sendMessage("\u00A7cPlease provide a valid instance number.");
             return;
         }
-        if(getPortal(identifier, instanceNum)==null){
+        Portal portal = getPortal(identifier, instanceNum);
+        if(portal==null){
             sender.sendMessage("\u00A7cThat is not a valid portal.");
         }else {
-            Portal portal = getPortal(identifier, instanceNum);
-            assert portal != null;
             portal.unregister(true);
             sender.sendMessage("\u00A7cDeleted the portal.");
         }
