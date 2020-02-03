@@ -31,7 +31,7 @@ public class MasterCommand implements CommandExecutor {
             sender.sendMessage("Please provide an argument. \nUse \"/ultimateportals help\" for the available commands.");
             return true;
         }
-        switch(args[0]){
+        switch(args[0].toLowerCase()){
             case "help":
                 Help help = new Help(sender, label, Arrays.copyOfRange(args, 1, args.length));
                 help.tryCommand();
