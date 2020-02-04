@@ -4,3 +4,18 @@ version: 1.0-SNAPSHOT
 authors: [Brian_Entei, Augies]
 api-version: 1.14
 load: POSTWORLD
+commands:
+  ultimateportals:
+    description: The Base Ultimate Portals Command
+    usage: /<command>
+    aliases: [ultport, up]
+permissions:
+  ultimateportals.deleteallportals:
+    description: Allows use of the deleteallportals command.
+    default: op
+  ultimateportals.deleteall:
+    description: Allows the deletion of all portals of a specific name.
+    default: op
+  ultimateportals.delete:
+    description: Allows the deletion of a specific portal
+    default: op

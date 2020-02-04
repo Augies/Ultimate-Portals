@@ -13,10 +13,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.libs.org.apache.commons.io.FileUtils;
@@ -188,6 +185,12 @@ public class Portal {
     /** @return True if this portal was just unregistered. Will return false if this portal was already unregistered. */
     public boolean unregister(boolean fixInstanceNums) {
         if(instances.contains(this)) {
+            try {
+                this.getLocation().getWorld().getBlockAt(this.getLocation()).getRelative(BlockFace.UP).setType(Material.AIR);
+                this.getLocation().getWorld().getBlockAt(this.getLocation()).getRelative(BlockFace.UP).getRelative(BlockFace.UP).setType(Material.AIR);
+            }catch(NullPointerException e){
+                Main.getPlugin().getLogger().log(Level.WARNING, "World was null when unregistering portal " + identifier + "_" + instanceNum + ".", e);
+            }
             while(instances.remove(this)) {
                 if(fixInstanceNums) {
                     for (Portal i : instances) {

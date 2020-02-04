@@ -1,5 +1,6 @@
 package com.blockworlds.ultimateportals;
 
+import com.blockworlds.ultimateportals.commands.MasterCommand;
 import com.blockworlds.ultimateportals.listeners.ClockUseListener;
 import com.blockworlds.ultimateportals.listeners.PortalBreakListener;
 import com.blockworlds.ultimateportals.listeners.PortalEntryListener;
@@ -26,6 +27,7 @@ public class Main extends JavaPlugin {
 
     public void onEnable(){
         plugin = this;
+        this.getCommand("ultimateportals").setExecutor(new MasterCommand());
         this.getServer().getPluginManager().registerEvents(portalEntryListener = new PortalEntryListener(), this);
         this.getServer().getPluginManager().registerEvents(clockUseListener = new ClockUseListener(), this);
         this.getServer().getPluginManager().registerEvents(worldLoadListener = new WorldLoadListener(), this);
