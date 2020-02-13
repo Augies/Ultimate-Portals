@@ -37,7 +37,7 @@ class PortalHandlerSpec extends Specification {//Specification is extended to te
      * In that case, we need to give the function a bad value and ensure that an exception was thrown
      * to do that we do this:
      */
-    void "test bad cases"(){
+    void "test bad cases for getLogicDirection"(){
         when:
         PortalHandler.getLogicDirection(BlockFace.NORTH_EAST)
 
