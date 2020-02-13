@@ -148,7 +148,6 @@ public class Portal {
      * @param location This portal's location
      * @param identifier This portal's identifier */
     public Portal(UUID owner, Location location, String identifier, BlockFace portalFacing, int instanceNum){
-        System.out.println(identifier + "_" + instanceNum + " initialized");
         this.owner = owner;
         this.location = location;
         this.identifier = identifier;
@@ -170,6 +169,12 @@ public class Portal {
 
     /** @return True if this portal was just registered. Will return false if this portal is already registered. */
     public boolean register() {
+        Block[] portalBlocks = this.getPortalBlocks();
+        for(Block i : portalBlocks){
+            if(getPortalWithin(i.getLocation())!=null){
+                return false;
+            }
+        }
         if(getPortalAt(this.location) != null) {
             return false;
         }

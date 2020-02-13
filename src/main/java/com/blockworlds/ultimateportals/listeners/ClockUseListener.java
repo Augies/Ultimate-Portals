@@ -37,7 +37,7 @@ public class ClockUseListener extends UpListener {
                 String name = event.getItem().getItemMeta().getDisplayName();
                 Portal portal = new Portal(player.getUniqueId(), location, name, portalFacing, Portal.getNumberOf(name)+1);
                 if(!portal.register()) {
-                    player.sendMessage("\u00A7cA portal already exists at this location.");
+                    player.sendMessage("\u00A7cA portal already exists within this location.");
                     portal.unregister(false);
                     return;
                 }
