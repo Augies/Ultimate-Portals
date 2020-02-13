@@ -7,16 +7,29 @@ import com.blockworlds.ultimateportals.commands.help.Help;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class MasterCommand implements CommandExecutor {
-    private static final Map<String,String> upCommands = new HashMap<>();
+    //TODO better design.
 
-    public MasterCommand(){
+    private static final Map<String,String> upCommands = new HashMap<>();
+    Plugin plugin;
+
+    public MasterCommand(Plugin plugin){
+        this.plugin = plugin;
+        PluginCommand command = plugin.getServer().getPluginCommand("ultimateportals");
+        if(command==null){
+            plugin.getServer().getLogger().log(Level.WARNING, "Unable to register the UltimatePortals Command!");
+        }else{
+            command.setExecutor(this);
+        }
         if(upCommands.size()==0) {
             upCommands.put("deleteallportals", "ultimateportals.deleteallportals");
             upCommands.put("help", null);

@@ -8,30 +8,19 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 
-public class PortalEntryListener implements Listener {
+public class PortalEntryListener extends UpListener {
+    public PortalEntryListener(Plugin plugin) {
+        super(plugin);
+    }
+
     @EventHandler(priority = EventPriority.NORMAL)
-    public static void onPortalEntry(PlayerPortalEvent event){
+    public void onPortalEntry(PlayerPortalEvent event){
         //TODO test how this works with nether portals. May throw an exception like IOOB or something.
-//        Player player = event.getPlayer();
-//        Block targetBlock = player.getTargetBlockExact(1);
-//        while(targetBlock.getY()>=player.getLocation().getBlockY()){
-//            targetBlock = targetBlock.getRelative(BlockFace.DOWN);
-//        }
-//        if(Portal.getPortalAt(targetBlock.getLocation())!=null){
-//            Portal portal = Portal.getPortalAt(targetBlock.getLocation());
-//            if(portal!=null && portal.getDestination()!=null){
-//                event.setCancelled(true);
-//                Location destination = portal.getDestinationPortal().getLocation();
-//                Block destinationBlock = destination.getWorld().getBlockAt(destination).getRelative(portal.getDestinationPortal().getPortalFacing().getOppositeFace(), 2);
-//                player.teleport(destinationBlock.getRelative(BlockFace.UP).getLocation());
-//            }
-//            event.setCancelled(true);
-//        }
         Player player = event.getPlayer();
         Location loc = event.getFrom();
         loc.setY(loc.getY()-1);

@@ -5,21 +5,22 @@ import com.blockworlds.ultimateportals.Portal;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.logging.Level;
 
 /** @author Brian_Entei */
-public class WorldLoadListener implements Listener {
+public class WorldLoadListener extends UpListener {
 	
 	/** Constructor for Bukkit Listener */
-	public WorldLoadListener() {
+	public WorldLoadListener(Plugin plugin) {
+		super(plugin);
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public static void onWorldLoadEvent(WorldLoadEvent event) {
+	public void onWorldLoadEvent(WorldLoadEvent event) {
 		World world = event.getWorld();
 		int numRegistered = 0;
 		for(Portal check : Portal.loadPortalsFromFile(false, false)) {
@@ -35,7 +36,7 @@ public class WorldLoadListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public static void onWorldLoadEvent(WorldUnloadEvent event) {
+	public void onWorldLoadEvent(WorldUnloadEvent event) {
 		World world = event.getWorld();
 		int numUnregistered = 0;
 		for(Portal portal : Portal.getPortalsWithin(world)) {

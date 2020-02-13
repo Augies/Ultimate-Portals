@@ -4,12 +4,16 @@ import com.blockworlds.ultimateportals.Portal;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.UUID;
 
-public class PortalBreakListener implements Listener{
+public class PortalBreakListener extends UpListener{
+
+    public PortalBreakListener(Plugin plugin) {
+        super(plugin);
+    }
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPortalBreak(BlockBreakEvent event) {

@@ -10,22 +10,23 @@ import org.bukkit.block.data.Orientable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.Plugin;
 
 import static com.blockworlds.ultimateportals.PortalHandler.*;
 
-public class ClockUseListener implements Listener {
+public class ClockUseListener extends UpListener {
 
     /** Constructor for Bukkit Listener */
-    public ClockUseListener() {
+    public ClockUseListener(Plugin plugin) {
+        super(plugin);
     }
 
     /** For the sake of my sanity, you must click the right block of it in order to create a portal
      *
      * @param event the playerInteractEvent */
     @EventHandler(priority = EventPriority.NORMAL)
-    public static void onPlayerClockUse(PlayerInteractEvent event){
+    public void onPlayerClockUse(PlayerInteractEvent event){
         if(event.getItem()!=null && event.getItem().getItemMeta()!= null && !event.getItem().getItemMeta().getDisplayName().equalsIgnoreCase("Clock") && event.getClickedBlock()!=null && event.getItem().getType()==Material.CLOCK && event.getClickedBlock().getType()==Material.EMERALD_BLOCK && isCardinalDirection(event.getBlockFace())){
             Player player = event.getPlayer();
             Block clickedBlock = event.getClickedBlock();
@@ -34,7 +35,6 @@ public class ClockUseListener implements Listener {
                 Location location = getPortalBlock(portalFacing, clickedBlock).getLocation();
                 location.setDirection(portalFacing.getDirection());
                 String name = event.getItem().getItemMeta().getDisplayName();
-//                int instanceNum = Portal.identifierInstances.getOrDefault(name, 0)+1;
                 Portal portal = new Portal(player.getUniqueId(), location, name, portalFacing, Portal.getNumberOf(name)+1);
                 if(!portal.register()) {
                     player.sendMessage("\u00A7cA portal already exists at this location.");
