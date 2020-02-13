@@ -35,7 +35,6 @@ public class PortalHandler {
             case WEST:
                 logicDirection = BlockFace.NORTH;
                 break;
-            //$CASES-OMITTED$
             default:
                 throw new IllegalStateException("Unexpected value: " + portalFacing);
         }

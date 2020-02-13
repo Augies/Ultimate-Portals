@@ -29,7 +29,6 @@ import static com.blockworlds.ultimateportals.PortalHandler.getLogicDirection;
  */
 public class Portal {
     //TODO File read/write move to PortalHandler
-    //public static final HashMap<String, Integer> identifierInstances = new HashMap<>();
 
     public static final ConcurrentLinkedDeque<Portal> instances = new ConcurrentLinkedDeque<>();
 
@@ -212,14 +211,6 @@ public class Portal {
             return getPortal(identifier, 2)==null ? null : getPortal(identifier, 2).getLocation();
         }
         return getPortal(identifier, instanceNum+1)==null ? getPortal(identifier, 1).getLocation() : getPortal(identifier, instanceNum+1).getLocation();
-//        if(this.destination == null && this.destinationLine != null) {
-//            Location check = new Location(null, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
-//            if(fromString(check, "destination", this.destinationLine) && check.getWorld() != null && check.getBlockX() != Integer.MIN_VALUE && check.getBlockY() != Integer.MIN_VALUE && check.getBlockZ() != Integer.MIN_VALUE) {
-//                this.destination = check;
-//                this.destinationLine = null;
-//            }
-//        }
-//        return this.destination;
     }
 
     /** @return This portal's destination portal */
@@ -270,9 +261,6 @@ public class Portal {
 
     /** @return This portal's save file */
     public File getSaveFile() {
-//        int instances = identifierInstances.getOrDefault(this.identifier, 0)+1;
-//        identifierInstances.remove(this.identifier);
-//        identifierInstances.put(this.identifier, instances);
         return new File(getSaveFolder(), this.identifier.concat("_").concat(String.valueOf(this.instanceNum)));
     }
 
