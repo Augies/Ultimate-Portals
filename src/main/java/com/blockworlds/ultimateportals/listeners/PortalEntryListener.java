@@ -56,15 +56,18 @@ public class PortalEntryListener extends UpListener {
 
     public static Portal getNearestPortal(Location loc){
         ArrayList<Block> portalBlocks = getNearbyPortalBlocks(loc);
-        double distance = 10;
-        Block nearestBlock = portalBlocks.get(0);
-        for(Block i : portalBlocks){
-            double thisDist = Math.sqrt(Math.pow((loc.getX()-i.getX()), 2) + Math.pow((loc.getZ()-i.getZ()), 2));
-            distance = Math.min(distance, thisDist);
-            if(distance==thisDist){
-                nearestBlock = i;
+        if(portalBlocks.size()>0) {
+            double distance = 10;
+            Block nearestBlock = portalBlocks.get(0);
+            for (Block i : portalBlocks) {
+                double thisDist = Math.sqrt(Math.pow((loc.getX() - i.getX()), 2) + Math.pow((loc.getZ() - i.getZ()), 2));
+                distance = Math.min(distance, thisDist);
+                if (distance == thisDist) {
+                    nearestBlock = i;
+                }
             }
+            return Portal.getPortalAt(nearestBlock.getLocation());
         }
-        return Portal.getPortalAt(nearestBlock.getLocation());
+        return null;
     }
 }
