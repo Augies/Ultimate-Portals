@@ -3,3 +3,7 @@
 /bin/
 /.classpath
 /.project
+/lib/
+/target/
+/Export_to_Export.jardesc
+/.settings/

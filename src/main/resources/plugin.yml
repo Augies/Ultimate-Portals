@@ -1,9 +1,12 @@
 name: UltimatePortals
 main: com.blockworlds.ultimateportals.Main
-version: 1.0-SNAPSHOT
-authors: [Brian_Entei, Augies]
+version: 1.2-SNAPSHOT
+author: Augies
+authors: [Augies, Brian_Entei]
 api-version: 1.15
 load: POSTWORLD
+
+
 commands:
   ultimateportals:
     description: The Base Ultimate Portals Command
@@ -19,3 +22,4 @@ permissions:
   ultimateportals.delete:
     description: Allows the deletion of a specific portal
     default: op
+  

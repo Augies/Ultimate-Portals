@@ -2,6 +2,8 @@ package com.blockworlds.ultimateportals.listeners;
 
 import com.blockworlds.ultimateportals.Main;
 import com.blockworlds.ultimateportals.Portal;
+import com.blockworlds.ultimateportals.PortalHandler;
+
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,7 +25,7 @@ public class WorldLoadListener extends UpListener {
 	public void onWorldLoadEvent(WorldLoadEvent event) {
 		World world = event.getWorld();
 		int numRegistered = 0;
-		for(Portal check : Portal.loadPortalsFromFile(false, false)) {
+		for(Portal check : PortalHandler.loadPortalsFromFile(false, false)) {
 			if(!check.isRegistered() && check.getLocation().getWorld() == world) {
 				numRegistered += check.register() ? 1 : 0;
 			}
@@ -39,7 +41,7 @@ public class WorldLoadListener extends UpListener {
 	public void onWorldLoadEvent(WorldUnloadEvent event) {
 		World world = event.getWorld();
 		int numUnregistered = 0;
-		for(Portal portal : Portal.getPortalsWithin(world)) {
+		for(Portal portal : PortalHandler.getPortalsWithin(world)) {
 			if(portal.save()) {
 				numUnregistered += portal.unregister(false) ? 1 : 0;
 			} else {
